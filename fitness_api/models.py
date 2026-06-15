@@ -1,0 +1,172 @@
+from datetime import timedelta
+
+from django.db import models
+from django.contrib.auth.models import User
+from django.utils import timezone
+from .nutrition_calculator import NutritionCalculator
+
+class UserFitnessData(models.Model):
+    GENDER_CHOICES = [
+        (0, 'Male'),
+        (1, 'Female'),
+    ]
+    
+    # User inputs
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='fitness_history', null=True, blank=True)
+    gender = models.IntegerField(choices=GENDER_CHOICES)  # 0 for Male, 1 for Female
+    age = models.IntegerField()
+    weight = models.FloatField()  # in kg
+    height = models.FloatField()  # in meters
+    activity_level = models.CharField(
+        max_length=20, 
+        default='moderate',
+        choices=[
+            ('sedentary', 'قليل الحركة'),
+            ('light', 'خفيف'),
+            ('moderate', 'متوسط'),
+            ('active', 'نشيط'),
+            ('very_active', 'ناشط جداً')
+        ]
+    )
+    
+    # Auto-calculated fields (not editable by user)
+    max_bpm = models.IntegerField(editable=False, null=True)
+    bmr = models.FloatField(editable=False, null=True)  # Basal Metabolic Rate
+    daily_calories = models.IntegerField(editable=False, null=True)
+    protein_grams = models.FloatField(editable=False, null=True)
+    carbs_grams = models.FloatField(editable=False, null=True)
+    fats_grams = models.FloatField(editable=False, null=True)
+    
+    # ML prediction results
+    fitness_level = models.CharField(max_length=50)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        # Auto-calculate nutrition values
+        self.calculate_nutrition()
+        super().save(*args, **kwargs)
+    
+    def calculate_nutrition(self):
+        """
+        ✅ NEW: Calculate nutrition using centralized NutritionCalculator.
+        This ensures views.py and models.py use THE SAME logic - no duplication!
+        """
+        nutrition = self.get_extended_nutrition()
+        
+        # Update all calculated fields
+        self.max_bpm = nutrition['max_bpm']
+        self.bmr = nutrition['bmr']
+        self.daily_calories = nutrition['daily_calories']
+        self.protein_grams = nutrition['protein_grams']
+        self.carbs_grams = nutrition['carbs_grams']
+        self.fats_grams = nutrition['fats_grams']
+
+    def get_extended_nutrition(self):
+        """Return full nutrition payload used by dashboard and API views."""
+        if not hasattr(self, '_extended_nutrition_cache'):
+            self._extended_nutrition_cache = NutritionCalculator.calculate_full_nutrition(
+                weight_kg=self.weight,
+                height_m=self.height,
+                age_years=self.age,
+                activity_level=self.activity_level,
+                gender=self.gender,
+            )
+        return self._extended_nutrition_cache
+
+    @property
+    def bmi(self):
+        return self.get_extended_nutrition()['bmi']
+
+    @property
+    def bmi_category(self):
+        return self.get_extended_nutrition()['bmi_category']
+
+    @property
+    def bmi_description(self):
+        return self.get_extended_nutrition()['bmi_description']
+
+    @property
+    def activity_level_label(self):
+        return dict(self._meta.get_field('activity_level').choices).get(
+            self.activity_level, self.activity_level
+        )
+
+    @property
+    def ideal_weight_kg(self):
+        return self.get_extended_nutrition()['ideal_weight_kg']
+
+    @property
+    def ideal_weight_min(self):
+        return self.get_extended_nutrition()['ideal_weight_min']
+
+    @property
+    def ideal_weight_max(self):
+        return self.get_extended_nutrition()['ideal_weight_max']
+
+    @property
+    def water_daily_liters(self):
+        return self.get_extended_nutrition()['water_with_exercise_liters']
+
+    @property
+    def water_daily_cups(self):
+        return self.get_extended_nutrition()['water_cups_daily']
+
+    @property
+    def goal(self):
+        return self.get_extended_nutrition()['goal']
+
+    @property
+    def goal_adjusted_calories(self):
+        return self.get_extended_nutrition()['goal_adjusted_calories']
+
+    def __str__(self):
+        username = self.user.username if self.user else "Unknown"
+        return f"{username} - {self.fitness_level} ({self.created_at.strftime('%Y-%m-%d')})"
+
+    @property
+    def total_workouts(self):
+        if self.user:
+            return self.user.fitness_history.count()
+        return 0
+
+    @property
+    def current_streak(self):
+        if not self.user:
+            return 0
+        date_set = sorted({record.created_at.date() for record in self.user.fitness_history.all()})
+        if not date_set:
+            return 0
+        streak = 0
+        check_date = date_set[-1]
+        while check_date in date_set:
+            streak += 1
+            check_date -= timedelta(days=1)
+        return streak
+
+class WorkoutPlan(models.Model):
+    """
+    Personalized workout plan generated by AI based on user fitness data.
+    """
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='workout_plans')
+    fitness_data = models.ForeignKey('UserFitnessData', on_delete=models.CASCADE, related_name='workout_plans')
+    
+    # AI generated content
+    plan_title = models.CharField(max_length=200)
+    plan_json = models.JSONField()  # Structured plan: weeks, days, exercises, sets/reps/rest
+    plan_text = models.TextField()  # Human readable Arabic text
+    
+    # Metadata
+    difficulty_level = models.CharField(max_length=50, default='beginner')  # beginner/intermediate/advanced
+    duration_weeks = models.IntegerField(default=4)
+    equipment_needed = models.TextField(blank=True)  # home/gym/full
+    estimated_time_per_session = models.CharField(max_length=50, default='45-60 دقيقة')
+    
+    generated_at = models.DateTimeField(default=timezone.now)
+    is_active = models.BooleanField(default=True)
+    
+    class Meta:
+        ordering = ['-generated_at']
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.plan_title} ({self.difficulty_level})"

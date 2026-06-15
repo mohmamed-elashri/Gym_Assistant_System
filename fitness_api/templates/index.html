@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+{% load i18n %}
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% trans 'Gym AI - Smart Fitness Analysis' %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --glass-bg: rgba(15, 23, 42, 0.45);
+            --glass-border: rgba(99, 102, 241, 0.1);
+            --glass-border-hover: rgba(99, 102, 241, 0.3);
+            --accent-indigo: #6366f1;
+            --accent-emerald: #10b981;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1a1f3a 50%, #0f172a 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated Background Orbs */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -10%;
+            left: -10%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: -10%;
+            right: -10%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1;
+            animation: float 10s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(20px); }
+        }
+
+        /* Premium Glass Card */
+        .glass-card {
+            background: var(--glass-bg);
+            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 28px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: visible;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, transparent 100%);
+            pointer-events: none;
+            border-radius: 28px;
+        }
+
+        .glass-card:hover {
+            border-color: var(--glass-border-hover);
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.2);
+        }
+
+        /* Gradient Text */
+        .gradient-text {
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+
+        /* Button Styles */
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: white;
+            padding: 0.875rem 1.75rem;
+            border-radius: 12px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            transition: left 0.3s ease;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(99, 102, 241, 0.1);
+            color: #6366f1;
+            padding: 0.875rem 1.75rem;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: rgba(99, 102, 241, 0.5);
+        }
+
+        /* Input Fields */
+        input[type="number"],
+        input[type="text"],
+        textarea,
+        select {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            color: var(--text-primary);
+            border-radius: 12px;
+            padding: 0.875rem 1rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: rgba(226, 232, 240, 0.4);
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #6366f1;
+            background: rgba(99, 102, 241, 0.08);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .gender-btn-male {
+            font-family: 'Georgia', serif;
+            color: #f97316;
+            border-color: #f97316;
+            background: rgba(249, 115, 22, 0.1);
+        }
+
+        .gender-btn-female {
+            color: #ec4899;
+            border-color: #ec4899;
+            background: rgba(236, 72, 153, 0.1);
+        }
+
+        .activity-btn {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(168, 85, 247, 0.08));
+            border-color: #a855f7;
+            color: #a855f7;
+        }
+
+        .load-bar-init {
+            width: 0%;
+        }
+
+        /* Chat Styling */
+        .chat-bubble {
+            max-width: 80%;
+            padding: 0.875rem 1.125rem;
+            border-radius: 18px;
+            word-wrap: break-word;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .chat-bubble.ai {
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            color: var(--text-primary);
+        }
+
+        .chat-bubble.user {
+            background: linear-gradient(135deg, #6366f1, #6366f1);
+            color: white;
+        }
+
+        /* Badge */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: rgba(99, 102, 241, 0.2);
+            color: #6366f1;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.3);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(99, 102, 241, 0.3);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(99, 102, 241, 0.5);
+        }
+
+        /* Screen reader only */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0,0,0,0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        /* Activity Dropdown Menu - Full Visibility */
+        #activityMenu {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .activity-option {
+            color: #cbd5e1;
+        }
+
+        .activity-option:hover {
+            background-color: rgba(168, 85, 247, 0.2) !important;
+        }
+
+        /* Ensure glass-card allows overflow for dropdown */
+        .glass-card {
+            overflow: visible;
+        }
+
+        /* Remove overflow hidden from bio form */
+        .glass-card.p-8 {
+            overflow: visible;
+        }
+
+        /* Gender Button Styles */
+        .gender-btn {
+            opacity: 0.6;
+            transition: all 0.3s ease;
+        }
+
+        .gender-btn:hover {
+            opacity: 0.8 !important;
+        }
+
+        /* Responsive Grid */
+        @media (max-width: 768px) {
+            .grid-cols-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body data-predict-url="{% url 'fitness_predict' %}"
+    data-chat-url="{% url 'gym_chat' %}"
+    data-workout-plan-url="{% url 'workout_plan' %}">
+
+    <!-- Premium Hero Section -->
+    <div class="relative min-h-screen flex items-center justify-center overflow-hidden">
+        <!-- Hero Image with Overlay -->
+        <div class="absolute inset-0 z-0">
+            <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80" alt="premium gym" class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-transparent"></div>
+        </div>
+
+        <!-- Navigation Bar -->
+        <nav class="absolute top-0 left-0 right-0 z-50 backdrop-blur-md bg-black/20 border-b border-white/10">
+            <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                        </svg>
+                    </div>
+                    <h1 class="text-2xl font-bold gradient-text">Gym AI</h1>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <a href="{% url 'user_dashboard' %}" class="btn-primary px-6 py-2 text-sm flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                        <span>{% trans 'Dashboard' %}</span>
+                    </a>
+                    
+                    <form action="{% url 'logout' %}" method="post" class="inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-secondary px-6 py-2 text-sm flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                            </svg>
+                            {% trans 'Logout' %}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Hero Content -->
+        <div class="relative z-10 text-center px-6 max-w-4xl mx-auto animate__animated animate__fadeInUp">
+            <div class="mb-8">
+                <span class="badge mb-4 inline-block">✨ {% trans 'AI-Powered Fitness Analysis' %}</span>
+            </div>
+            <h1 class="text-5xl md:text-7xl font-black gradient-text mb-6 leading-tight">
+                {% trans 'Transform Your Fitness' %}
+            </h1>
+            <p class="text-xl md:text-2xl text-gray-300 mb-12 leading-relaxed max-w-2xl mx-auto">
+                {% trans 'Professional fitness analysis with AI • Personalized workout plans • Scientific nutrition guidance' %}
+            </p>
+            <a href="#analysis" class="btn-primary px-8 py-4 text-lg inline-flex items-center gap-2 hover:scale-105 transition-transform">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                {% trans 'Start Analysis' %}
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Section -->
+    <section class="py-16 px-6 relative z-10">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+              
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content Section -->
+    <section id="analysis" class="py-20 px-6 relative z-10">
+        <div class="max-w-7xl mx-auto">
+            <!-- Section Header -->
+            <div class="text-center mb-16 animate__animated animate__fadeInUp">
+                <h2 class="text-4xl md:text-5xl font-black gradient-text mb-4">{% trans 'Your Fitness Journey Starts Here' %}</h2>
+                <p class="text-lg text-gray-400 max-w-2xl mx-auto">{% trans 'Fill in your biological data and chat with our AI coach to get personalized fitness recommendations' %}</p>
+            </div>
+
+            <div class="grid lg:grid-cols-5 gap-8 items-start">
+
+                <!-- Left Panel: Bio Analysis Form -->
+                <div class="lg:col-span-2">
+                    <div class="glass-card p-8 animate__animated animate__fadeInLeft">
+                        <div class="flex items-center gap-4 mb-8 pb-6 border-b border-white/10">
+                            <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                                <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-2xl font-bold">{% trans 'Biological Analysis' %}</h3>
+                                <p class="text-sm text-gray-400">{% trans 'Professional profile setup' %}</p>
+                            </div>
+                        </div>
+
+                        <form id="predictForm" class="space-y-6">
+                            {% csrf_token %}
+                            
+                            <!-- Age Field -->
+                            <div>
+                                <label for="age" class="block text-sm font-semibold text-gray-300 mb-2">
+                                    <svg class="w-4 h-4 inline mr-2 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    {% trans 'Age (years)' %}
+                                </label>
+                                <input type="number" id="age" placeholder="25" min="16" max="80" required class="w-full" />
+                            </div>
+
+                            <!-- Gender Field -->
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-300 mb-3">
+                                    <svg class="w-4 h-4 inline mr-2 text-pink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    {% trans 'Gender' %}
+                                </label>
+                                <input type="hidden" id="gender" required />
+                                <div class="flex gap-3">
+                                    <button type="button" class="gender-btn gender-btn-male flex-1 py-3 px-4 rounded-lg font-bold text-lg transition-all border-2" data-value="0">
+                                        {% trans 'Male' %}
+                                    </button>
+                                    <button type="button" class="gender-btn gender-btn-female flex-1 py-3 px-4 rounded-lg font-bold text-lg transition-all border-2" data-value="1">
+                                        {% trans 'Female' %}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Weight & Height Row -->
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label for="weight" class="block text-sm font-semibold text-gray-300 mb-2">
+                                        <svg class="w-4 h-4 inline mr-2 text-emerald-400" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
+                                        </svg>
+                                        {% trans 'Weight (kg)' %}
+                                    </label>
+                                    <input type="number" id="weight" placeholder="75" step="0.1" min="40" max="200" required class="w-full" />
+                                </div>
+
+                                <div>
+                                    <label for="height" class="block text-sm font-semibold text-gray-300 mb-2">
+                                        <svg class="w-4 h-4 inline mr-2 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                        {% trans 'Height (m)' %}
+                                    </label>
+                                    <input type="number" id="height" placeholder="1.75" step="0.01" min="1.4" max="2.2" required class="w-full" />
+                                </div>
+                            </div>
+
+                            <!-- Activity Level -->
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-300 mb-3">
+                                    <svg class="w-4 h-4 inline mr-2 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                    </svg>
+                                    {% trans 'Activity Level' %}
+                                </label>
+                                <input type="hidden" id="activity_level" value="moderate" required />
+                                <div class="relative">
+                                    <button type="button" id="activityBtn" class="activity-btn w-full py-3 px-4 rounded-lg font-semibold text-left transition-all border-2" title="{% trans 'Select your activity level' %}" aria-haspopup="listbox" aria-expanded="false">
+                                        {% trans 'Moderate (3-5 days/week)' %}
+                                        <svg class="w-4 h-4 float-right" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                                        </svg>
+                                    </button>
+                                    <div id="activityMenu" class="hidden absolute top-full left-0 right-0 mt-2 bg-slate-900 border-2 border-purple-600 rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto">
+                                        <button type="button" class="activity-option w-full text-left py-3 px-4 hover:bg-purple-500/20 border-b border-purple-500/20 transition-all" data-value="sedentary">{% trans 'Sedentary (little exercise)' %}</button>
+                                        <button type="button" class="activity-option w-full text-left py-3 px-4 hover:bg-purple-500/20 border-b border-purple-500/20 transition-all" data-value="light">{% trans 'Light (1-3 days/week)' %}</button>
+                                        <button type="button" class="activity-option w-full text-left py-3 px-4 hover:bg-purple-500/20 border-b border-purple-500/20 transition-all selected" data-value="moderate">✓ {% trans 'Moderate (3-5 days/week)' %}</button>
+                                        <button type="button" class="activity-option w-full text-left py-3 px-4 hover:bg-purple-500/20 border-b border-purple-500/20 transition-all" data-value="active">{% trans 'Active (6-7 days/week)' %}</button>
+                                        <button type="button" class="activity-option w-full text-left py-3 px-4 hover:bg-purple-500/20 transition-all" data-value="very_active">{% trans 'Very Active (physical work)' %}</button>
+                                    </div>
+                                </div>
+                            </div>
+ 
+                            <button type="submit" class="btn-primary w-full py-4 text-lg font-semibold flex items-center justify-center gap-2 hover:scale-[1.02]">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                                {% trans 'Start AI Analysis' %}
+                            </button>
+                        </form>
+
+                        <!-- Results Box -->
+                        <div id="resultBox" class="hidden mt-8 p-6 glass-card border-2 border-emerald-500/30 animate__animated animate__fadeInUp">
+                            <h4 class="text-lg font-bold mb-6 flex items-center gap-2">
+                                <svg class="w-5 h-5 text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                </svg>
+                                {% trans 'Analysis Results' %}
+                            </h4>
+                            <div class="grid grid-cols-3 gap-3 mb-6">
+                                <div class="glass-card p-4 text-center">
+                                    <p class="text-2xl font-bold text-emerald-400 mb-1" id="res_level">--</p>
+                                    <p class="text-xs text-gray-400">{% trans 'Fitness Level' %}</p>
+                                </div>
+                                <div class="glass-card p-4 text-center">
+                                    <p class="text-2xl font-bold text-orange-400 mb-1" id="calories_display">--</p>
+                                    <p class="text-xs text-gray-400">{% trans 'Daily Calories' %}</p>
+                                </div>
+                                <div class="glass-card p-4 text-center">
+                                    <p class="text-2xl font-bold text-red-400 mb-1" id="bmr_display">--</p>
+                                    <p class="text-xs text-gray-400">{% trans 'BMR' %}</p>
+                                </div>
+                            </div>
+                            <button id="generateWorkoutBtn" class="btn-primary w-full py-3 text-sm font-semibold flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                                {% trans 'Generate Workout Plan' %}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Panel: AI Chat -->
+                <div class="lg:col-span-3">
+                    <div class="glass-card h-[600px] p-8 flex flex-col animate__animated animate__fadeInRight">
+                        <!-- Chat Header -->
+                        <div class="flex items-center gap-4 mb-6 pb-6 border-b border-white/10">
+                            <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                                <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-xl font-bold">{% trans 'AI Coach' %}</h3>
+                                <div class="flex items-center gap-2 text-xs text-gray-400">
+                                    <div class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+                                    {% trans 'Available 24/7' %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chat Window -->
+                        <div id="chatWindow" class="flex-1 overflow-y-auto mb-6 space-y-4 pr-2">
+                            <div class="text-center py-8">
+                                <div class="w-12 h-12 bg-gradient-to-br from-indigo-500/20 to-purple-600/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <svg class="w-6 h-6 text-indigo-400 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                    </svg>
+                                </div>
+                                <p class="text-gray-400 text-sm leading-relaxed">
+                                    {% trans "Hi! I'm your AI fitness coach. Fill in your data on the left and start asking me about workouts, nutrition, and progress! 💪" %}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Chat Input -->
+                        <div class="flex gap-3 pt-6 border-t border-white/10">
+                            <input type="text" id="chatInput" placeholder="{% trans 'Ask your coach...' %}" class="flex-1" />
+                            <button id="sendChatBtn" class="btn-primary px-6 py-2 flex items-center justify-center" title="{% trans 'Send message' %}" aria-label="{% trans 'Send message' %}">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>           
+                  
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Nutrition & Macros Results (Hidden by default) -->
+    <section id="nutritionSection" class="hidden py-20 px-6 relative z-10 bg-gradient-to-b from-transparent via-indigo-500/5 to-transparent">
+        <div class="max-w-7xl mx-auto">
+            <div class="glass-card p-12 animate__animated animate__fadeInUp">
+                <h3 class="text-3xl font-bold mb-8 flex items-center gap-3">
+                    <svg class="w-8 h-8 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                    </svg>
+                    {% trans 'Daily Nutrition Plan' %}
+                </h3>
+                
+                <!-- Macros Display -->
+                <div class="grid md:grid-cols-4 gap-6 mb-8">
+                    <div class="text-center p-6 rounded-xl bg-gradient-to-br from-orange-500/10 to-orange-600/5 border border-orange-500/20">
+                        <p class="text-3xl font-bold text-orange-400 mb-2" id="calories-result">--</p>
+                        <p class="text-sm text-gray-400">{% trans 'Calories' %}</p>
+                    </div>
+                    <div class="text-center p-6 rounded-xl bg-gradient-to-br from-red-500/10 to-red-600/5 border border-red-500/20">
+                        <p class="text-3xl font-bold text-red-400 mb-2" id="display-protein">--</p>
+                        <p class="text-sm text-gray-400">{% trans 'Protein (g)' %}</p>
+                    </div>
+                    <div class="text-center p-6 rounded-xl bg-gradient-to-br from-yellow-500/10 to-yellow-600/5 border border-yellow-500/20">
+                        <p class="text-3xl font-bold text-yellow-400 mb-2" id="display-carbs">--</p>
+                        <p class="text-sm text-gray-400">{% trans 'Carbs (g)' %}</p>
+                    </div>
+                    <div class="text-center p-6 rounded-xl bg-gradient-to-br from-emerald-500/10 to-emerald-600/5 border border-emerald-500/20">
+                        <p class="text-3xl font-bold text-emerald-400 mb-2" id="display-fats">--</p>
+                        <p class="text-sm text-gray-400">{% trans 'Fats (g)' %}</p>
+                    </div>
+                </div>
+
+                <!-- Nutrition Recommendations -->
+                <div id="nutritionRecommendations" class="hidden p-6 bg-slate-900/50 rounded-xl border border-white/10">
+                    <h4 class="text-lg font-bold mb-4">{% trans 'Nutrition Tips' %}</h4>
+                    <div id="nutritionContent" class="space-y-3 text-gray-300"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Workout Plan Results (Hidden by default) -->
+    <section id="workoutSection" class="hidden py-20 px-6 relative z-10">
+        <div class="max-w-7xl mx-auto">
+            <div id="aiLoader" class="hidden text-center py-12">
+                <div class="w-12 h-12 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin mx-auto mb-4"></div>
+                <p class="text-gray-300 mb-4">{% trans 'Creating your personalized workout plan...' %}</p>
+                <div class="flex items-center gap-4 max-w-sm mx-auto">
+                    <div class="flex-1 h-2 bg-slate-700/50 rounded-full overflow-hidden">
+                        <div id="loadBar" class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all load-bar-init"></div>
+                    </div>
+                    <span id="loadPercent" class="text-2xl font-bold text-indigo-400 min-w-12">0%</span>
+                </div>
+            </div>
+
+            <div id="workoutPlanContainer" class="hidden glass-card p-12 animate__animated animate__fadeInUp">
+                <h3 class="text-3xl font-bold mb-8 flex items-center gap-3">
+                    <svg class="w-8 h-8 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    {% trans 'Your Personalized Workout Plan' %}
+                </h3>
+                <div id="workoutPlanContent" class="space-y-4 text-gray-300 prose prose-invert max-w-none"></div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Initialize Lucide Icons
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+
+        // Helper function for XSS protection
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Get CSRF Token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let cookie of cookies) {
+                    cookie = cookie.trim();
+                    if (cookie.startsWith(name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrfToken = getCookie('csrftoken') || document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        // === Gender Button Handler ===
+        document.querySelectorAll('.gender-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.querySelectorAll('.gender-btn').forEach(b => {
+                    b.style.opacity = '0.6';
+                    b.style.borderWidth = '2px';
+                });
+                btn.style.opacity = '1';
+                btn.style.borderWidth = '3px';
+                document.getElementById('gender').value = btn.dataset.value;
+            });
+        });
+
+        // === Activity Level Dropdown Handler ===
+        const activityBtn = document.getElementById('activityBtn');
+        const activityMenu = document.getElementById('activityMenu');
+        const activityField = document.getElementById('activity_level');
+        
+        const activityLabels = {
+            sedentary: '{% trans "Sedentary (little exercise)" %}',
+            light: '{% trans "Light (1-3 days/week)" %}',
+            moderate: '{% trans "Moderate (3-5 days/week)" %}',
+            active: '{% trans "Active (6-7 days/week)" %}',
+            very_active: '{% trans "Very Active (physical work)" %}'
+        };
+
+        activityBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            activityMenu.classList.toggle('hidden');
+        });
+
+        document.querySelectorAll('.activity-option').forEach(option => {
+            option.addEventListener('click', (e) => {
+                e.preventDefault();
+                const value = option.dataset.value;
+                activityField.value = value;
+                
+                // Update button text
+                activityBtn.textContent = activityLabels[value];
+                const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                svg.className = 'w-4 h-4 float-right';
+                svg.setAttribute('fill', 'none');
+                svg.setAttribute('viewBox', '0 0 24 24');
+                svg.setAttribute('stroke', 'currentColor');
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('stroke-linecap', 'round');
+                path.setAttribute('stroke-linejoin', 'round');
+                path.setAttribute('stroke-width', '2');
+                path.setAttribute('d', 'M19 14l-7 7m0 0l-7-7m7 7V3');
+                svg.appendChild(path);
+                activityBtn.appendChild(svg);
+                
+                // Update selected indicator
+                document.querySelectorAll('.activity-option').forEach(opt => {
+                    opt.textContent = opt.textContent.replace(/^✓ /, '');
+                });
+                if (option.textContent.indexOf('✓') === -1) {
+                    option.textContent = '✓ ' + option.textContent;
+                }
+                
+                activityMenu.classList.add('hidden');
+            });
+        });
+
+        // Close activity menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.relative')) {
+                activityMenu.classList.add('hidden');
+            }
+        });
+
+        // === Predict Form Handler ===
+        const predictForm = document.getElementById('predictForm');
+        const resultBox = document.getElementById('resultBox');
+        const nutritionSection = document.getElementById('nutritionSection');
+        const workoutSection = document.getElementById('workoutSection');
+        const generateBtn = document.getElementById('generateWorkoutBtn');
+
+        predictForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Validation
+            const age = parseFloat(document.getElementById('age').value);
+            const gender = document.getElementById('gender').value;
+            const weight = parseFloat(document.getElementById('weight').value);
+            const height = parseFloat(document.getElementById('height').value);
+            const activity = document.getElementById('activity_level').value;
+
+            if (!age || age < 16 || age > 80 || !gender || !weight || !height || !activity) {
+                alert('{% trans "Please fill all fields correctly" %}');
+                return;
+            }
+
+            const submitBtn = predictForm.querySelector('button[type="submit"]');
+            const originalBtn = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<svg class="w-5 h-5 inline mr-2 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>{% trans "Analyzing..." %}';
+            submitBtn.disabled = true;
+
+            try {
+                const response = await fetch(document.body.dataset.predictUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: JSON.stringify({
+                        age: parseInt(age),
+                        gender: parseInt(gender),
+                        weight: parseFloat(weight),
+                        height: parseFloat(height),
+                        activity_level: activity
+                    })
+                });
+
+                const data = await response.json();
+                submitBtn.innerHTML = originalBtn;
+                submitBtn.disabled = false;
+
+                if (response.ok) {
+                    // Update results
+                    document.getElementById('res_level').textContent = data.fitness_level || '--';
+                    document.getElementById('calories_display').textContent = data.daily_calories || '0';
+                    document.getElementById('bmr_display').textContent = data.bmr || '0';
+                    document.getElementById('calories-result').textContent = data.daily_calories || '0';
+                    const macroProtein = data.protein ?? data.macros?.protein ?? '0';
+                    const macroCarbs = data.carbs ?? data.macros?.carbs ?? '0';
+                    const macroFats = data.fats ?? data.macros?.fats ?? '0';
+
+                    document.getElementById('display-protein').textContent = macroProtein;
+                    document.getElementById('display-carbs').textContent = macroCarbs;
+                    document.getElementById('display-fats').textContent = macroFats;
+
+                    resultBox.classList.remove('hidden');
+                    nutritionSection.classList.remove('hidden');
+                    generateBtn.classList.remove('hidden');
+
+                    const nutritionText = data.nutrition_recommendations || (data.nutrition_plan ? data.nutrition_plan.recommendations.join('\n') : '');
+                    if (nutritionText) {
+                        document.getElementById('nutritionContent').innerHTML = escapeHtml(nutritionText).replace(/\n/g, '<br>');
+                        document.getElementById('nutritionRecommendations').classList.remove('hidden');
+                    }
+
+                    resultBox.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    alert(data.error || '{% trans "Analysis failed. Please try again." %}');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                submitBtn.innerHTML = originalBtn;
+                submitBtn.disabled = false;
+                alert('{% trans "Connection error. Please try again." %}');
+            }
+        });
+
+        // === Workout Plan Generator ===
+        generateBtn.addEventListener('click', generateWorkoutPlan);
+
+        async function generateWorkoutPlan() {
+            const loader = document.getElementById('aiLoader');
+            const planContainer = document.getElementById('workoutPlanContainer');
+            const fitnessLevel = document.getElementById('res_level').textContent;
+
+            if (!fitnessLevel || fitnessLevel === '--') {
+                alert('{% trans "Please complete the analysis first" %}');
+                return;
+            }
+
+            workoutSection.classList.remove('hidden');
+            loader.classList.remove('hidden');
+            planContainer.classList.add('hidden');
+
+            try {
+                const response = await fetch(document.body.dataset.workoutPlanUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: JSON.stringify({ fitness_level: fitnessLevel })
+                });
+
+                const data = await response.json();
+                loader.classList.add('hidden');
+
+                if (response.ok && data.workout_plan) {
+                    // Insert plan as escaped text to avoid XSS, preserve newlines
+                    const planHtml = escapeHtml(data.workout_plan || '').replace(/\n/g, '<br>');
+                    document.getElementById('workoutPlanContent').innerHTML = planHtml;
+                    planContainer.classList.remove('hidden');
+                    workoutSection.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    alert(data.error || '{% trans "Failed to generate plan" %}');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                loader.classList.add('hidden');
+                alert('{% trans "Connection error" %}');
+            }
+        }
+
+        // === AI Chat Handler ===
+        const chatWindow = document.getElementById('chatWindow');
+        const chatInput = document.getElementById('chatInput');
+        const sendChatBtn = document.getElementById('sendChatBtn');
+
+        sendChatBtn.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        async function sendMessage() {
+            const message = chatInput.value.trim();
+            if (!message) {
+                chatInput.focus();
+                return;
+            }
+
+            chatInput.disabled = true;
+            sendChatBtn.disabled = true;
+
+            try {
+                // User message
+                const userMsg = document.createElement('div');
+                userMsg.className = 'flex justify-end';
+                userMsg.innerHTML = `<div class="chat-bubble user animate__animated animate__slideInRight">${escapeHtml(message)}</div>`;
+                chatWindow.appendChild(userMsg);
+                chatInput.value = '';
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+
+                // Typing indicator
+                const typing = document.createElement('div');
+                typing.className = 'flex justify-start';
+                typing.innerHTML = '<div class="chat-bubble ai flex items-center gap-2"><span class="animate-pulse">●●●</span></div>';
+                chatWindow.appendChild(typing);
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+
+                // Send to backend
+                const response = await fetch(document.body.dataset.chatUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        fitness_level: document.getElementById('res_level').textContent || 'Unknown',
+                        weight: document.getElementById('weight')?.value || '',
+                        height: document.getElementById('height')?.value || '',
+                        age: document.getElementById('age')?.value || '',
+                        activity_level: document.getElementById('activity_level')?.value || '',
+                        daily_calories: document.getElementById('calories_display')?.textContent || '',
+                        bmr: document.getElementById('bmr_display')?.textContent || ''
+                    })
+                });
+
+                chatWindow.removeChild(typing);
+                const data = await response.json();
+                const assistantText = data.response || data.assistant_response;
+
+                if (response.ok && assistantText) {
+                    const botMsg = document.createElement('div');
+                    botMsg.className = 'flex justify-start';
+                    botMsg.innerHTML = `<div class="chat-bubble ai animate__animated animate__slideInLeft">${escapeHtml(assistantText)}</div>`;
+                    chatWindow.appendChild(botMsg);
+                } else {
+                    const errorMsg = document.createElement('div');
+                    errorMsg.className = 'flex justify-start mb-2';
+                    errorMsg.innerHTML = `<div class="chat-bubble ai text-red-400">{% trans "Sorry, please try again." %}</div>`;
+                    chatWindow.appendChild(errorMsg);
+                }
+            } catch (error) {
+                console.error('Chat error:', error);
+                const errorMsg = document.createElement('div');
+                errorMsg.className = 'flex justify-start mb-2';
+                errorMsg.innerHTML = `<div class="chat-bubble ai text-red-400">{% trans "Connection error" %}</div>`;
+                chatWindow.appendChild(errorMsg);
+            } finally {
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+                chatInput.disabled = false;
+                sendChatBtn.disabled = false;
+                chatInput.focus();
+            }
+        }
+
+        // Smooth scroll animations
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        // Initialize icon rendering
+        if (window.lucide) {
+            const observer = new MutationObserver(() => lucide.createIcons());
+            observer.observe(document.body, { childList: true, subtree: true });
+        }
+    </script>
+</body>
+</html>

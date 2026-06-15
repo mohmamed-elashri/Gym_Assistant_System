@@ -1,0 +1,53 @@
+name: Python Tests & Linting
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.11', '3.12']
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements-dev.txt
+    
+    - name: Run tests
+      run: |
+        python manage.py test
+    
+    - name: Lint with Ruff
+      run: |
+        ruff check fitness_api/
+    
+    - name: Format check with Black
+      run: |
+        black --check fitness_api/
+    
+    - name: Type check with MyPy
+      run: |
+        mypy fitness_api/ --ignore-missing-imports
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Run Bandit security check
+      uses: PyCQA/bandit-action@v1
+      with:
+        path: fitness_api/

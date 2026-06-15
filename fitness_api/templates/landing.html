@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+{% load i18n %}
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% trans 'Gym Assistant | Welcome' %}</title>
+    <!-- Bootstrap CDN for styling -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-v4.6.1@4.6.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Cairo', sans-serif; background: linear-gradient(135deg, #020617 0%, #0f172a 50%, #1e293b 100%); color: white; min-height: 100vh; }
+        .hero-section { padding: 60px 20px; }
+        .hero-box { background: rgba(2, 6, 23, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 32px; padding: 40px; -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+        .hero-left { display:flex; flex-direction:column; gap:24px }
+        .hero-controls { display:flex; justify-content:flex-end; margin-bottom:24px }
+        .hero-actions { display:flex; gap:16px; flex-wrap:wrap }
+        .lang-toggle { display: inline-flex; align-items: center; gap: 8px; border-radius: 9999px; background-color: rgba(34, 211, 238, 0.1); padding: 8px 16px; font-size: 14px; color: rgb(165, 243, 252); border: 1px solid rgba(34, 211, 238, 0.2); text-decoration: none; margin-bottom: 24px; }
+        .lang-toggle:hover { background-color: rgba(34, 211, 238, 0.2); color: rgb(165, 243, 252); }
+        .feature-tag { display: inline-flex; border-radius: 9999px; background-color: rgba(34, 211, 238, 0.1); padding: 8px 16px; font-size: 14px; color: rgb(165, 243, 252); border: 1px solid rgba(34, 211, 238, 0.2); margin-bottom: 24px; }
+        .hero-title { font-size: 48px; font-weight: 600; color: white; letter-spacing: -0.02em; margin-bottom: 24px; }
+        .hero-desc { font-size: 18px; line-height: 32px; color: rgb(203, 213, 225); margin-bottom: 24px; }
+        .btn-primary-custom { display: inline-flex; align-items: center; justify-content: center; border-radius: 24px; background-color: rgb(34, 211, 238); padding: 12px 24px; font-size: 14px; font-weight: 600; color: rgb(15, 23, 42); cursor: pointer; text-decoration: none; margin-right: 16px; }
+        .btn-primary-custom:hover { background-color: rgb(6, 182, 212); color: rgb(15, 23, 42); }
+        .btn-secondary-custom { display: inline-flex; align-items: center; justify-content: center; border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.1); background-color: rgba(255, 255, 255, 0.05); padding: 12px 24px; font-size: 14px; font-weight: 600; color: white; cursor: pointer; text-decoration: none; }
+        .btn-secondary-custom:hover { background-color: rgba(255, 255, 255, 0.1); color: white; }
+        .features-box { background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 32px; padding: 32px; box-shadow: 0 20px 90px -20px rgba(56, 189, 248, 0.6); }
+        .features-box h2 { font-size: 24px; font-weight: 600; margin-bottom: 20px; }
+        .feature-item { display: flex; gap: 12px; margin-bottom: 16px; color: rgb(203, 213, 225); }
+        .feature-dot { width: 10px; height: 10px; border-radius: 50%; background-color: rgb(34, 211, 238); margin-top: 4px; flex-shrink: 0; }
+    </style>
+</head>
+<body class="min-h-screen text-white">
+    <div class="hero-section container">
+        <div class="hero-box">
+            <div class="hero-controls">
+                <a href="?{% if request.GET.lang == 'en' %}lang=ar{% else %}lang=en{% endif %}" class="lang-toggle" aria-label="{% trans 'Switch language' %}">
+                    <i class="fas fa-globe"></i>
+                    <span>{% if request.GET.lang == 'en' %}العربية{% else %}English{% endif %}</span>
+                </a>
+            </div>
+            <div class="hero-grid">
+                <div class="hero-left">
+                    <span class="feature-tag">{% trans 'Smart fitness assistant' %}</span>
+                    <h1 class="hero-title">{% trans 'Your AI-driven gym coach.' %}</h1>
+                    <p class="hero-desc">
+                        {% trans 'Track your progress, get personalized workout suggestions, and ask fitness questions in real time. Sign in to access your dashboard and start training smarter.' %}
+                    </p>
+                    <div class="hero-actions">
+                        <a href="{% url 'login' %}" class="btn-primary-custom" aria-label="{% trans 'Sign in to your account' %}">{% trans 'Log in' %}</a>
+                        <a href="{% url 'signup' %}" class="btn-secondary-custom" aria-label="{% trans 'Create a new account' %}">{% trans 'Sign up' %}</a>
+                    </div>
+                </div>
+                <div class="features-box">
+                    <h2>{% trans 'Features you' %}'{% trans 'l love' %}</h2>
+                    <div>
+                        <div class="feature-item">
+                            <span class="feature-dot"></span>
+                            <span>{% trans 'Personal workout and macro insights' %}</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-dot"></span>
+                            <span>{% trans 'Chat with a fitness AI coach instantly' %}</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-dot"></span>
+                            <span>{% trans 'Secure dashboard with member-only access' %}</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-dot"></span>
+                            <span>{% trans 'Progress analytics and easy meal planning' %}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
