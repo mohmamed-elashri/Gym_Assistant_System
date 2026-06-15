@@ -33,7 +33,7 @@ A comprehensive Django-based fitness management platform with AI-powered workout
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/USERNAME/REPO_NAME.git
+git clone git@github.com:mohmamed-elashri/Gym_Assistant_System.git
 cd FINAL\ Gym_Assistant_System
 ```
 
