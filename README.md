@@ -1,5 +1,10 @@
 # Gym Assistant System
 
+[![CI](https://github.com/mohmamed-elashri/Gym_Assistant_System/actions/workflows/python-tests.yml/badge.svg)](https://github.com/mohmamed-elashri/Gym_Assistant_System/actions)
+[![License](https://img.shields.io/github/license/mohmamed-elashri/Gym_Assistant_System)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.14%2B-blue)](https://www.python.org/)
+[![Issues](https://img.shields.io/github/issues/mohmamed-elashri/Gym_Assistant_System)](https://github.com/mohmamed-elashri/Gym_Assistant_System/issues)
+
 A comprehensive Django-based fitness management platform with AI-powered workout planning, nutrition tracking, and personalized fitness recommendations.
 
 ## Features
