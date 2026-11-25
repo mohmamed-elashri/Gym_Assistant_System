@@ -145,6 +145,19 @@ CSRF_TRUSTED_ORIGINS = [
     if origin.strip()
 ]
 
+# Production hardening. Applies when DEBUG is off, unless DJANGO_HTTPS=false
+# (plain-HTTP local runs such as docker compose on localhost). Terminate TLS at
+# a reverse proxy that sets X-Forwarded-Proto, or set DJANGO_BEHIND_PROXY=false.
+if not DEBUG and os.environ.get("DJANGO_HTTPS", "true").lower() == "true":
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = int(os.environ.get("DJANGO_HSTS_SECONDS", "0"))
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = SECURE_HSTS_SECONDS > 0
+    if os.environ.get("DJANGO_BEHIND_PROXY", "true").lower() == "true":
+        SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
 LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/landing/"
