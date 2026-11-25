@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('fitness_api', '0003_remove_userfitnessdata_calories_burned_and_more'),
+        ("fitness_api", "0003_remove_userfitnessdata_calories_burned_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='userfitnessdata',
-            name='activity_level',
-            field=models.CharField(default='moderate', max_length=20),
+            model_name="userfitnessdata",
+            name="activity_level",
+            field=models.CharField(default="moderate", max_length=20),
         ),
     ]

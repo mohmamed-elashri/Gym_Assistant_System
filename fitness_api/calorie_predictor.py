@@ -4,7 +4,7 @@ from .model_manager import ModelRegistry
 from .utils import prepare_calorie_model_input
 
 logger = logging.getLogger(__name__)
-CALORIE_MODEL_VERSION = 'calories_model_final_v1'
+CALORIE_MODEL_VERSION = "calories_model_final_v1"
 
 
 def _validate_inputs(gender, age, height_cm, weight_kg, duration, heart_rate):
@@ -49,12 +49,12 @@ def predict_calories(gender, age, height_cm, weight_kg, duration, heart_rate):
         height_cm=height_cm,
         weight_kg=weight_kg,
         duration_min=duration,
-        heart_rate=heart_rate
+        heart_rate=heart_rate,
     )
 
-    scaler = ModelRegistry.get_model('calorie_scaler')
-    model = ModelRegistry.get_model('calorie')
-    features = ModelRegistry.get_model('calorie_features')
+    scaler = ModelRegistry.get_model("calorie_scaler")
+    model = ModelRegistry.get_model("calorie")
+    features = ModelRegistry.get_model("calorie_features")
 
     input_scaled = scaler.transform(input_data[features])
     prediction = float(model.predict(input_scaled)[0])

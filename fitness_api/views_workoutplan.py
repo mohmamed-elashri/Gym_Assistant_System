@@ -10,7 +10,7 @@ import os
 
 
 logger = logging.getLogger(__name__)
-GENAI_DEBUG_MODE = os.environ.get('GENAI_DEBUG_MODE', 'false').lower() == 'true'
+GENAI_DEBUG_MODE = os.environ.get("GENAI_DEBUG_MODE", "false").lower() == "true"
 WORKOUT_PLAN_FALLBACK = "الخدمة الذكية غير متاحة حالياً. خطة تمارين عامة:\n\nأسبوع 1-4:\nيوم1: Full Body (Squat 3x12, Pushup 3x10, Pullup 3x8)\nيوم2: راحة\nيوم3: Upper Body\nيوم4: كارديو خفيف\nيوم5: Lower Body + Core\nيوم6: راحة\nيوم7: Mobility وتمدد"
 
 
@@ -31,7 +31,8 @@ def generate_workout_plan_text(prompt):
     )
     return response
 
-@method_decorator(csrf_exempt, name='dispatch')
+
+@method_decorator(csrf_exempt, name="dispatch")
 class WorkoutPlanView(APIView):
     def post(self, request):
         if not request.user.is_authenticated:
@@ -39,7 +40,9 @@ class WorkoutPlanView(APIView):
 
         try:
             try:
-                fitness_data = UserFitnessData.objects.filter(user=request.user).latest('created_at')
+                fitness_data = UserFitnessData.objects.filter(user=request.user).latest(
+                    "created_at"
+                )
             except UserFitnessData.DoesNotExist:
                 return Response(
                     {"error": "No fitness data found. Complete analysis first."},
@@ -50,7 +53,7 @@ class WorkoutPlanView(APIView):
             activity_level = fitness_data.activity_level
             daily_calories = fitness_data.daily_calories
             age = fitness_data.age
-            gender = 'ذكر' if fitness_data.gender == 0 else 'أنثى'
+            gender = "ذكر" if fitness_data.gender == 0 else "أنثى"
 
             # Gemini prompt for Arabic workout plan with compact context
             prompt = f"""
@@ -92,8 +95,8 @@ class WorkoutPlanView(APIView):
                 "difficulty": fitness_level.lower(),
                 "exercises": [
                     {"name": "Squat", "sets": 3, "reps": 12},
-                    {"name": "Bench Press", "sets": 3, "reps": 10}
-                ]
+                    {"name": "Bench Press", "sets": 3, "reps": 10},
+                ],
             }
 
             # Save plan
@@ -104,16 +107,18 @@ class WorkoutPlanView(APIView):
                 plan_json=plan_json,
                 plan_text=plan_text,
                 difficulty_level=fitness_level.lower(),
-                equipment_needed="جيم/منزل"
+                equipment_needed="جيم/منزل",
             )
 
-            return Response({
-                "status": "success",
-                "plan_id": plan.id,
-                "workout_plan": plan.plan_text,
-                "title": plan.plan_title,
-                "difficulty": plan.difficulty_level
-            })
+            return Response(
+                {
+                    "status": "success",
+                    "plan_id": plan.id,
+                    "workout_plan": plan.plan_text,
+                    "title": plan.plan_title,
+                    "difficulty": plan.difficulty_level,
+                }
+            )
 
         except Exception as e:
             logger.error("Workout plan generation failed: %s", str(e), exc_info=True)
