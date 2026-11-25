@@ -14,14 +14,15 @@ SECRET_KEY = os.environ.get(
     "DJANGO_SECRET_KEY",
     "django-insecure-dev-only-change-in-production",
 )
-DEBUG = os.environ.get("DJANGO_DEBUG", "True").lower() == "true"
+DEBUG = os.environ.get("DJANGO_DEBUG", "False").lower() == "true"
 
 # Fail closed: never run with the development key when DEBUG is off.
 if not DEBUG and SECRET_KEY.startswith("django-insecure-"):
     from django.core.exceptions import ImproperlyConfigured
 
     raise ImproperlyConfigured(
-        "Set DJANGO_SECRET_KEY to a unique value when DJANGO_DEBUG is not true."
+        "Set DJANGO_SECRET_KEY to a unique value. DEBUG is off by default; "
+        "set DJANGO_DEBUG=true only for local development."
     )
 ALLOWED_HOSTS = [
     host.strip()

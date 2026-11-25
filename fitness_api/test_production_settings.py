@@ -56,3 +56,15 @@ def test_production_refuses_insecure_default_key(monkeypatch):
 
     with pytest.raises(ImproperlyConfigured):
         _load(monkeypatch, DJANGO_DEBUG="false")
+
+
+def test_debug_is_off_by_default(monkeypatch):
+    s = _load(monkeypatch, DJANGO_SECRET_KEY="x" * 50)
+    assert s.DEBUG is False
+
+
+def test_fails_closed_without_secret_key_by_default(monkeypatch):
+    from django.core.exceptions import ImproperlyConfigured
+
+    with pytest.raises(ImproperlyConfigured):
+        _load(monkeypatch)
