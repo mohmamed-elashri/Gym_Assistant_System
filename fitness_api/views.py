@@ -12,8 +12,6 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.utils import timezone
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
 
 from .models import UserFitnessData, WorkoutPlan
 from .ai_service import get_ai_service
@@ -283,7 +281,6 @@ def get_fitness_labels():
     return ModelRegistry.get_fitness_labels()
 
 
-@method_decorator(csrf_exempt, name="dispatch")
 class FitnessPredictionView(APIView):
     def post(self, request):
         data = request.data
@@ -490,7 +487,6 @@ class FitnessPredictionView(APIView):
 
 
 # 4. Gym Chatbot (AI Assistant) with automatic key fallback
-@method_decorator(csrf_exempt, name="dispatch")
 class GymChatbotView(APIView):
     def post(self, request):
         """Get fitness advice from AI assistant with automatic provider fallback."""
@@ -597,12 +593,13 @@ class GymChatbotView(APIView):
             return Response({"assistant_response": fallback_response})
 
 
-@csrf_exempt
 def WorkoutCaloriePredictorView(request):
     """
     Predict calories burned during workout.
     ✅ FIXED: Uses centralized scaler-aware calorie predictor helper
     """
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "Authentication required"}, status=401)
     if request.method != "POST":
         return JsonResponse({"error": "POST method required"}, status=400)
 

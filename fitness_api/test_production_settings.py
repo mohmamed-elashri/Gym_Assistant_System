@@ -25,6 +25,8 @@ def _load(monkeypatch, **env):
 def _restore_settings():
     yield
     os.environ.pop("DJANGO_DEBUG", None)
+    os.environ.setdefault("DJANGO_SECRET_KEY", "test-only-" + "x" * 50)
+    os.environ.setdefault("DJANGO_HTTPS", "false")
     sys.modules.pop("gym_config.settings", None)
     importlib.import_module("gym_config.settings")
 

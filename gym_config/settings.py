@@ -130,6 +130,14 @@ REST_FRAMEWORK = {
     ],
     "EXCEPTION_HANDLER": "fitness_api.views.custom_exception_handler",
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    # Every API endpoint requires a logged-in session. SessionAuthentication
+    # enforces CSRF on unsafe methods, so endpoints are no longer csrf_exempt.
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.SessionAuthentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
     "DEFAULT_THROTTLE_CLASSES": [
         "rest_framework.throttling.AnonRateThrottle",
         "rest_framework.throttling.UserRateThrottle",
@@ -168,4 +176,6 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "Fitness prediction, calorie estimation, and AI workout planning.",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
+    "SERVE_PERMISSIONS": ["rest_framework.permissions.AllowAny"],
+    "SERVE_AUTHENTICATION": [],
 }

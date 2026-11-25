@@ -1,7 +1,5 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
 from .models import WorkoutPlan, UserFitnessData
 from .ai_service import AIService, get_ai_service
 from django.utils.html import strip_tags
@@ -32,7 +30,6 @@ def generate_workout_plan_text(prompt):
     return response
 
 
-@method_decorator(csrf_exempt, name="dispatch")
 class WorkoutPlanView(APIView):
     def post(self, request):
         if not request.user.is_authenticated:
