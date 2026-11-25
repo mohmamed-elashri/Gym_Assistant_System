@@ -21,7 +21,7 @@ A comprehensive Django-based fitness management platform with AI-powered workout
 ## Tech Stack
 
 - **Backend**: Django 5.1 + Django REST Framework
-- **Database**: SQLite (default). PostgreSQL is used when `POSTGRES_DB` is set (see Docker below)
+- **Database**: SQLite (default). PostgreSQL is recommended for production but is not configured in this repo yet
 - **AI/ML**: Google Generative AI, scikit-learn, joblib
 - **Frontend**: HTML5, CSS3, JavaScript (Django templates)
 - **DevOps**: GitHub Actions CI/CD
@@ -133,8 +133,6 @@ All routes are mounted under `/api/` (see `fitness_api/urls.py`).
 | POST | `/api/workout-calories/` | none | Estimate calories burned for a workout |
 | POST | `/api/workout-plan/` | session login | Generate a 4-week plan from the user's saved fitness data |
 | GET | `/api/dashboard/` | session login | User dashboard page |
-| GET | `/api/health/live/`, `/api/health/ready/` | none | Liveness and database readiness |
-| GET | `/api/docs/`, `/api/schema/` | none | Swagger UI and OpenAPI schema |
 
 Model files (`models/*.pkl`) are not committed. Train them with `tools/train_fitness_model.py` before using the prediction endpoints; tests that need them are skipped when they are missing.
 
@@ -166,16 +164,6 @@ GEMINI_KEY_1=your_api_key_here
 - [ ] Enable HTTPS
 - [ ] Set secure cookie flags in settings
 - [ ] Use environment variables for sensitive data
-
-### Docker Compose (web + PostgreSQL)
-
-```bash
-cp .env.example .env   # set DJANGO_SECRET_KEY, POSTGRES_PASSWORD, and an AI key
-docker compose up --build
-docker compose exec web python manage.py migrate
-```
-
-The Docker files were added in this PR and have not been built in CI yet.
 
 ### Deploying to Heroku, AWS, or other platforms
 Refer to Django deployment documentation and platform-specific guides.
