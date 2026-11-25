@@ -3,7 +3,7 @@
 This document explains how to safely rotate API keys and add secrets to GitHub for this project.
 
 ## Overview
-- We detected sensitive keys in the local `.env` file. Those keys have been archived locally under `C:\Users\mr501\env_backups\`.
+- We detected sensitive keys in the local `.env` file. Those keys have been archived locally under a private local backup folder.
 - Do **not** store secrets in the repository. Use GitHub Secrets for CI and environment variables for local development.
 
 ## High-level steps to rotate keys

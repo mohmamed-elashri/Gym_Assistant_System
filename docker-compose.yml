@@ -5,6 +5,8 @@ services:
     env_file: .env
     environment:
       DJANGO_DEBUG: "false"
+      # Local compose runs over plain HTTP. Remove this line behind a TLS proxy.
+      DJANGO_HTTPS: "false"
       POSTGRES_DB: gym
       POSTGRES_USER: gym
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
