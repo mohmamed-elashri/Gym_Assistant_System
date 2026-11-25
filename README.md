@@ -16,7 +16,7 @@ A comprehensive Django-based fitness management platform with AI-powered workout
 - **Activity Tracking**: Track workouts and monitor progress over time
 - **Responsive Dashboard**: Modern web interface for easy access and management
 - **REST API**: Complete API for mobile and third-party integrations
-- **ML Models**: Trained models for fitness level classification and calorie prediction
+- **ML Models**: Demonstration models for fitness level classification and calorie estimation, trained on synthetic data (see [Machine learning models](#machine-learning-models))
 
 ## Tech Stack
 
@@ -86,6 +86,15 @@ python manage.py runserver
 
 The application will be available at `http://localhost:8000`
 
+## Machine learning models
+
+The models are **demonstration models trained on synthetic data**. They are not validated on real people and must not be used for health or training decisions.
+
+- The original training data and models could not be recovered, so no original dataset is credited (details: [docs/MODEL_PROVENANCE.md](docs/MODEL_PROVENANCE.md)).
+- `tools/train_synthetic_models.py` generates seeded synthetic data (calories from the published Keytel et al. 2005 heart-rate equation; fitness level from a documented heuristic) and writes the model files.
+- Reported metrics are on held-out synthetic rows only. They show that the models recover the generating rule, not accuracy on real users.
+- A real, properly licensed dataset is planned to replace the synthetic one.
+
 ## Running Tests
 
 ```bash
@@ -136,7 +145,7 @@ All routes are mounted under `/api/` (see `fitness_api/urls.py`).
 | GET | `/api/health/live/`, `/api/health/ready/` | none | Liveness and database readiness |
 | GET | `/api/docs/`, `/api/schema/` | none | Swagger UI and OpenAPI schema |
 
-Model files (`models/*.pkl`) are not committed. Train them with `tools/train_fitness_model.py` before using the prediction endpoints; tests that need them are skipped when they are missing.
+Model files (`models/*.pkl`) are not committed. Generate them with `python tools/train_synthetic_models.py` (see below).
 
 ## Configuration
 
