@@ -1,16 +1,16 @@
 [tool.black]
 line-length = 88
-target-version = ['py314']
+target-version = ['py312']
 include = '\.pyi?$'
 
 [tool.ruff]
 line-length = 88
-target-version = 'py314'
-extend-ignore = ['E203', 'W503']
+target-version = 'py312'
+extend-ignore = ['E203']
 
 [tool.isort]
 profile = 'black'
 
 [tool.mypy]
-python_version = 3.14
+python_version = 3.12
 ignore_missing_imports = true

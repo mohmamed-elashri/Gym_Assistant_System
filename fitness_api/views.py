@@ -427,6 +427,10 @@ class GymChatbotView(APIView):
     def post(self, request):
         """Get fitness advice from AI assistant with automatic provider fallback."""
         user_query = request.data.get('message')
+        if not isinstance(user_query, str) or not user_query.strip():
+            return Response({'error': "'message' must be a non-empty string."}, status=400)
+        if len(user_query) > 2000:
+            return Response({'error': "'message' is too long (max 2000 characters)."}, status=400)
         fitness_level = request.data.get('fitness_level', 'Unknown')
         history = request.data.get('history', [])
         live_metrics = {

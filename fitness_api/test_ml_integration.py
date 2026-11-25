@@ -64,6 +64,10 @@ class TestCalorieInputPreparation:
 class TestCaloriePredictionPipeline:
     """Regression checks against constant-output bug."""
 
+    @pytest.mark.skipif(
+        not os.path.exists(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'models', 'scaler_final.pkl')),
+        reason='trained model files (models/*.pkl) are not committed; run tools/train_fitness_model.py first',
+    )
     def test_required_scenarios_are_realistic_and_different(self):
         gender, age, height_cm, weight = 0, 30, 175, 70
         scenarios = [
