@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/mohmamed-elashri/Gym_Assistant_System/actions/workflows/python-tests.yml/badge.svg)](https://github.com/mohmamed-elashri/Gym_Assistant_System/actions)
 [![License](https://img.shields.io/github/license/mohmamed-elashri/Gym_Assistant_System)](LICENSE)
-[![Python](https://img.shields.io/badge/python-3.14%2B-blue)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/python-3.12%2B-blue)](https://www.python.org/)
 [![Issues](https://img.shields.io/github/issues/mohmamed-elashri/Gym_Assistant_System)](https://github.com/mohmamed-elashri/Gym_Assistant_System/issues)
 
 A comprehensive Django-based fitness management platform with AI-powered workout planning, nutrition tracking, and personalized fitness recommendations.
@@ -21,7 +21,7 @@ A comprehensive Django-based fitness management platform with AI-powered workout
 ## Tech Stack
 
 - **Backend**: Django 5.1 + Django REST Framework
-- **Database**: SQLite (development) / PostgreSQL (production)
+- **Database**: SQLite (default). PostgreSQL is used when `POSTGRES_DB` is set (see Docker below)
 - **AI/ML**: Google Generative AI, scikit-learn, joblib
 - **Frontend**: HTML5, CSS3, JavaScript (Django templates)
 - **DevOps**: GitHub Actions CI/CD
@@ -29,7 +29,7 @@ A comprehensive Django-based fitness management platform with AI-powered workout
 
 ## Prerequisites
 
-- Python 3.14+
+- Python 3.12+
 - pip or poetry
 - Virtual environment (venv/conda)
 - Google Generative AI API key (for AI features)
@@ -39,7 +39,7 @@ A comprehensive Django-based fitness management platform with AI-powered workout
 ### 1. Clone the repository
 ```bash
 git clone git@github.com:mohmamed-elashri/Gym_Assistant_System.git
-cd FINAL\ Gym_Assistant_System
+cd Gym_Assistant_System
 ```
 
 ### 2. Create and activate virtual environment
@@ -66,7 +66,7 @@ pip install -r requirements-dev.txt
 cp .env.example .env
 
 # Edit .env with your settings
-# Required: DJANGO_SECRET_KEY, Google Generative AI key
+# Required: DJANGO_SECRET_KEY, and at least one GEMINI_KEY_1 or OPENROUTER_KEY_1
 ```
 
 ### 5. Run migrations
@@ -82,9 +82,6 @@ python manage.py createsuperuser
 ### 7. Start the development server
 ```bash
 python manage.py runserver
-# Or use the provided script
-./run_local.bat  # Windows
-./run_local.sh   # macOS/Linux
 ```
 
 The application will be available at `http://localhost:8000`
@@ -93,11 +90,10 @@ The application will be available at `http://localhost:8000`
 
 ```bash
 # Run all tests
-python manage.py test
+python -m pytest -q
 
 # Or use the provided scripts
 ./run_tests.ps1  # Windows (PowerShell)
-./run_tests.bat  # Windows (Command Prompt)
 ```
 
 ## Project Structure
@@ -128,14 +124,19 @@ Gym_Assistant_System/
 
 ## API Endpoints
 
-- `GET /api/users/` - List all users
-- `POST /api/users/` - Create new user
-- `GET/PUT /api/users/<id>/` - Retrieve/update user
-- `POST /api/workout-plans/` - Generate workout plan
-- `GET /api/fitness-data/` - Get user fitness metrics
-- `POST /api/nutrition/` - Calculate nutrition info
+All routes are mounted under `/api/` (see `fitness_api/urls.py`).
 
-See full API documentation by running the server and visiting `/api/docs/`
+| Method | Path | Auth | Purpose |
+|--------|------|------|---------|
+| POST | `/api/predict/` | none | Predict fitness level from age, gender, weight, height |
+| POST | `/api/chat/` | none (throttled) | AI fitness assistant chat |
+| POST | `/api/workout-calories/` | none | Estimate calories burned for a workout |
+| POST | `/api/workout-plan/` | session login | Generate a 4-week plan from the user's saved fitness data |
+| GET | `/api/dashboard/` | session login | User dashboard page |
+| GET | `/api/health/live/`, `/api/health/ready/` | none | Liveness and database readiness |
+| GET | `/api/docs/`, `/api/schema/` | none | Swagger UI and OpenAPI schema |
+
+Model files (`models/*.pkl`) are not committed. Train them with `tools/train_fitness_model.py` before using the prediction endpoints; tests that need them are skipped when they are missing.
 
 ## Configuration
 
@@ -151,7 +152,7 @@ Edit `gym_config/settings.py` to customize:
 DJANGO_SECRET_KEY=your_secret_key_here
 DJANGO_DEBUG=False  # Set to True only in development
 DJANGO_ALLOWED_HOSTS=yourdomain.com,www.yourdomain.com
-GOOGLE_GENERATIVE_AI_API_KEY=your_api_key_here
+GEMINI_KEY_1=your_api_key_here
 ```
 
 ## Deployment
@@ -165,6 +166,16 @@ GOOGLE_GENERATIVE_AI_API_KEY=your_api_key_here
 - [ ] Enable HTTPS
 - [ ] Set secure cookie flags in settings
 - [ ] Use environment variables for sensitive data
+
+### Docker Compose (web + PostgreSQL)
+
+```bash
+cp .env.example .env   # set DJANGO_SECRET_KEY, POSTGRES_PASSWORD, and an AI key
+docker compose up --build
+docker compose exec web python manage.py migrate
+```
+
+The Docker files were added in this PR and have not been built in CI yet.
 
 ### Deploying to Heroku, AWS, or other platforms
 Refer to Django deployment documentation and platform-specific guides.
