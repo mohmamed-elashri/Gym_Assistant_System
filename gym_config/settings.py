@@ -15,6 +15,14 @@ SECRET_KEY = os.environ.get(
     'django-insecure-dev-only-change-in-production',
 )
 DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() == 'true'
+
+# Fail closed: never run with the development key when DEBUG is off.
+if not DEBUG and SECRET_KEY.startswith('django-insecure-'):
+    from django.core.exceptions import ImproperlyConfigured
+
+    raise ImproperlyConfigured(
+        'Set DJANGO_SECRET_KEY to a unique value when DJANGO_DEBUG is not true.'
+    )
 ALLOWED_HOSTS = [
     host.strip()
     for host in os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1,testserver').split(',')
@@ -103,6 +111,14 @@ REST_FRAMEWORK = {
         'rest_framework.parsers.JSONParser',
     ],
     'EXCEPTION_HANDLER': 'fitness_api.views.custom_exception_handler',
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': os.environ.get('API_THROTTLE_ANON', '30/min'),
+        'user': os.environ.get('API_THROTTLE_USER', '120/min'),
+    },
 }
 
 CSRF_TRUSTED_ORIGINS = [
