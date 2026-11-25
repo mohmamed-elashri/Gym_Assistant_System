@@ -62,3 +62,37 @@ jobs:
         run: bandit -q -r fitness_api gym_config -ll
       - name: Dependency audit
         run: pip-audit -r requirements.txt
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create CI environment file
+        run: |
+          {
+            echo "DJANGO_SECRET_KEY=$(python3 -c 'import secrets; print(secrets.token_urlsafe(50))')"
+            echo "POSTGRES_PASSWORD=$(python3 -c 'import secrets; print(secrets.token_urlsafe(24))')"
+            echo "DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1"
+          } > .env
+      - name: Build image and start the stack (web + PostgreSQL)
+        run: docker compose up --build -d
+      - name: Wait for readiness (database connected, migrations applied)
+        run: |
+          for i in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:8000/api/health/ready/; then exit 0; fi
+            sleep 3
+          done
+          docker compose logs
+          exit 1
+      - name: Check liveness and OpenAPI schema
+        run: |
+          curl -fsS http://127.0.0.1:8000/api/health/live/
+          curl -fsS http://127.0.0.1:8000/api/schema/ | head -n 5
+      - name: Confirm migrations are applied in PostgreSQL
+        run: docker compose exec -T db psql -U gym -d gym -c "select count(*) from django_migrations;"
+      - name: Logs on failure
+        if: failure()
+        run: docker compose logs
+      - name: Tear down
+        if: always()
+        run: docker compose down -v
