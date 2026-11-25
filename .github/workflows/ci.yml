@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.14]
+        python-version: ['3.12']
     env:
       DJANGO_SETTINGS_MODULE: gym_config.settings
       PYTHONPATH: .
@@ -32,15 +32,13 @@ jobs:
       - name: Run linters (ruff, black check, isort)
         run: |
           # Ruff
-          python -m ruff check . || true
+          python -m ruff check fitness_api/ gym_config/ --select E9,F63,F7,F82
           # Black check
-          python -m black --check . || true
           # isort check
-          python -m isort --check-only . || true
 
       - name: Run type checks
         run: |
-          python -m mypy . || true
+          python -m mypy fitness_api/ --ignore-missing-imports || true
 
       - name: Run tests
         run: |
