@@ -166,6 +166,8 @@ GEMINI_KEY_1=your_api_key_here
 
 ## Deployment
 
+Readiness status, known gaps and a checklist: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md). The project is not deployed anywhere.
+
 ### Production Checklist
 - [ ] Set `DEBUG=False` in settings
 - [ ] Update `ALLOWED_HOSTS` with your domain
