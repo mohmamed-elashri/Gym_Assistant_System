@@ -1,11 +1,29 @@
 # Gym Assistant System
 
-[![CI](https://github.com/mohmamed-elashri/Gym_Assistant_System/actions/workflows/python-tests.yml/badge.svg)](https://github.com/mohmamed-elashri/Gym_Assistant_System/actions)
+[![CI](https://github.com/mohmamed-elashri/Gym_Assistant_System/actions/workflows/ci.yml/badge.svg)](https://github.com/mohmamed-elashri/Gym_Assistant_System/actions)
 [![License](https://img.shields.io/github/license/mohmamed-elashri/Gym_Assistant_System)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.12%2B-blue)](https://www.python.org/)
 [![Issues](https://img.shields.io/github/issues/mohmamed-elashri/Gym_Assistant_System)](https://github.com/mohmamed-elashri/Gym_Assistant_System/issues)
 
 A comprehensive Django-based fitness management platform with AI-powered workout planning, nutrition tracking, and personalized fitness recommendations.
+
+> **Limitations:** the ML models are demonstration models trained on synthetic data, not validated for real fitness or health guidance. The project is not deployed anywhere (see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)).
+
+![Swagger UI listing the three API endpoints](docs/images/swagger-ui.png)
+
+*Swagger UI at `/api/docs/` (local run). The endpoints require a logged-in session; the schema does not yet declare that requirement, so the lock icons here are not meaningful.*
+
+## Quick start (local, about 5 minutes)
+
+```bash
+git clone https://github.com/mohmamed-elashri/Gym_Assistant_System.git && cd Gym_Assistant_System
+python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
+cp .env.example .env            # set DJANGO_SECRET_KEY; keep DJANGO_DEBUG=true only locally
+python tools/train_synthetic_models.py --seed 42 --rows 5000 --out models
+python manage.py migrate && python manage.py runserver   # http://localhost:8000 , docs at /api/docs/
+```
+
+Chat and workout-plan features need at least one `GEMINI_KEY_1` or `OPENROUTER_KEY_1` in `.env`. Full steps are under [Installation](#installation).
 
 ## Features
 
