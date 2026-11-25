@@ -6,47 +6,47 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('fitness_api', '0002_userfitnessdata_user'),
+        ("fitness_api", "0002_userfitnessdata_user"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='userfitnessdata',
-            name='calories_burned',
+            model_name="userfitnessdata",
+            name="calories_burned",
         ),
         migrations.AddField(
-            model_name='userfitnessdata',
-            name='bmr',
+            model_name="userfitnessdata",
+            name="bmr",
             field=models.FloatField(editable=False, null=True),
         ),
         migrations.AddField(
-            model_name='userfitnessdata',
-            name='carbs_grams',
+            model_name="userfitnessdata",
+            name="carbs_grams",
             field=models.FloatField(editable=False, null=True),
         ),
         migrations.AddField(
-            model_name='userfitnessdata',
-            name='daily_calories',
+            model_name="userfitnessdata",
+            name="daily_calories",
             field=models.IntegerField(editable=False, null=True),
         ),
         migrations.AddField(
-            model_name='userfitnessdata',
-            name='fats_grams',
+            model_name="userfitnessdata",
+            name="fats_grams",
             field=models.FloatField(editable=False, null=True),
         ),
         migrations.AddField(
-            model_name='userfitnessdata',
-            name='max_bpm',
+            model_name="userfitnessdata",
+            name="max_bpm",
             field=models.IntegerField(editable=False, null=True),
         ),
         migrations.AddField(
-            model_name='userfitnessdata',
-            name='protein_grams',
+            model_name="userfitnessdata",
+            name="protein_grams",
             field=models.FloatField(editable=False, null=True),
         ),
         migrations.AlterField(
-            model_name='userfitnessdata',
-            name='gender',
-            field=models.IntegerField(choices=[(0, 'Male'), (1, 'Female')]),
+            model_name="userfitnessdata",
+            name="gender",
+            field=models.IntegerField(choices=[(0, "Male"), (1, "Female")]),
         ),
     ]
