@@ -62,6 +62,7 @@ env/
 .sixth/
 test_output.txt
 *.csv
+!data/*.csv
 ai_models/*.pkl
 ai_models/*.joblib
 models/*.pkl

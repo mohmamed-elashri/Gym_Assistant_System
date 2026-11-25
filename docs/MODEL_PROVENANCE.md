@@ -31,3 +31,12 @@ The repository contains no reference to a dataset name, URL, author or license, 
 ### If a real dataset is preferred
 
 Choose a dataset whose license permits use and redistribution, record its URL, version and license in this file, and replace `make_*_data` with a loader. Review the license yourself before adding it.
+
+## Kaggle datasets (added)
+
+Two public datasets are committed under `data/` (details, licenses and SHA-256 checksums in `data/README.md`):
+
+- Gym Members Exercise Dataset, uploader valakhorasani, Apache 2.0 as declared, 973 rows.
+- Calories Burnt Prediction, uploader ruchikakumbhar, CC0 as declared, 15000 rows.
+
+`tools/train_real_models.py` trains both models on them with the same artifact names. Their columns match what the original code expected, which is consistent with being the original sources but does not prove it, so the original models and data remain unrecovered. The licenses are as displayed on Kaggle; the uploaders' rights and the data collection method were not verified. The calorie model reaches R2 0.998 on held-out rows, which points to a formula-like target in that dataset rather than measured expenditure. Treat all outputs as demonstrations.

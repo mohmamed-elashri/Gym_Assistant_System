@@ -106,12 +106,13 @@ The application will be available at `http://localhost:8000`
 
 ## Machine learning models
 
-The models are **demonstration models trained on synthetic data**. They are not validated on real people and must not be used for health or training decisions.
+The default models are **demonstration models trained on synthetic data**. Two public Kaggle datasets are also included in `data/` so the models can be retrained on real, openly licensed data (see below). They are not validated on real people and must not be used for health or training decisions.
 
 - The original training data and models could not be recovered, so no original dataset is credited (details: [docs/MODEL_PROVENANCE.md](docs/MODEL_PROVENANCE.md)).
 - `tools/train_synthetic_models.py` generates seeded synthetic data (calories from the published Keytel et al. 2005 heart-rate equation; fitness level from a documented heuristic) and writes the model files.
 - Reported metrics are on held-out synthetic rows only. They show that the models recover the generating rule, not accuracy on real users.
-- A real, properly licensed dataset is planned to replace the synthetic one.
+- `data/` holds two Kaggle datasets (Gym Members Exercise Dataset, Apache 2.0; Calories Burnt Prediction, CC0; licenses as declared by the uploaders). `python tools/train_real_models.py` trains on them. Sources, licenses and checksums: [data/README.md](data/README.md).
+- On a held-out 20% split of those datasets: fitness level accuracy 0.78 (majority-class baseline 0.42, 195 test rows), calories MAE 1.6 kcal and R2 0.998 (3000 test rows). The near-perfect calorie fit suggests that dataset follows a simple formula, so it should not be read as real-world accuracy. Exact numbers are written to `models/training_metrics.json` when you train.
 
 ## Running Tests
 

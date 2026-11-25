@@ -38,7 +38,7 @@ def main():
     models_dir = "models"
     os.makedirs(models_dir, exist_ok=True)
 
-    dataset_path = "data/gym_members_exercise_tracking.cv.csv"
+    dataset_path = "data/gym_members_exercise_tracking.csv"
     print(f"Loading dataset: {dataset_path}")
     df = pd.read_csv(dataset_path)
 
