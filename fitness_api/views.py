@@ -30,8 +30,15 @@ def custom_exception_handler(exc, context):
     response = exception_handler(exc, context)
 
     if response is None:
-        # If DRF doesn't handle it, try to return a plain error
-        return JsonResponse({"error": str(exc), "success": False}, status=500)
+        # Unhandled error: log the details server-side, return a generic body.
+        logger.error(
+            "Unhandled API exception in %s",
+            type(context.get("view")).__name__,
+            exc_info=exc,
+        )
+        return JsonResponse(
+            {"error": "An unexpected error occurred.", "success": False}, status=500
+        )
 
     return response
 
