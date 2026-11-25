@@ -45,6 +45,8 @@ jobs:
           pip install pytest
       - name: Django system check
         run: python manage.py check
+      - name: Train replacement models (synthetic data, seeded)
+        run: python tools/train_synthetic_models.py --seed 42 --rows 5000 --out models
       - name: Run tests
         run: python -m pytest -q -rs
 

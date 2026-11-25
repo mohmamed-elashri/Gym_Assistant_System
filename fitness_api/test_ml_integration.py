@@ -92,22 +92,27 @@ class TestCaloriePredictionPipeline:
     )
     def test_required_scenarios_are_realistic_and_different(self):
         gender, age, height_cm, weight = 0, 30, 175, 70
+        # The previous fixed ranges (e.g. 200-300 kcal for 30 min) described the
+        # original, unrecoverable model. For the replacement models the test
+        # checks plausibility (3-20 kcal/min, the bounds used by the predictor)
+        # and that more effort gives more calories.
         scenarios = [
-            ("light20", 20, 100, 80, 150),
-            ("moderate30", 30, 130, 200, 300),
-            ("moderate60", 60, 130, 500, 800),
-            ("intense45", 45, 160, 400, 650),
+            ("light20", 20, 100),
+            ("moderate30", 30, 130),
+            ("moderate60", 60, 130),
+            ("intense45", 45, 160),
         ]
 
         outputs = []
-        for _, duration, heart_rate, expected_min, expected_max in scenarios:
+        for _, duration, heart_rate in scenarios:
             pred = predict_calories(
                 gender, age, height_cm, weight, duration, heart_rate
             )
             outputs.append(pred)
-            assert (
-                expected_min <= pred <= expected_max
-            ), f"Prediction {pred} out of expected range [{expected_min}, {expected_max}]"
+            per_min = pred / duration
+            assert 3 <= per_min <= 20, f"{pred} kcal in {duration} min is implausible"
+
+        assert outputs[0] < outputs[1] < outputs[2], "longer sessions burn more"
 
         assert len(set(outputs)) == len(
             outputs
