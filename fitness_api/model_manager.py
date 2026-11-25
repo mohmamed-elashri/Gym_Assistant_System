@@ -3,6 +3,8 @@ Centralized ML model loading and caching with error handling.
 Ensures models are loaded once, with proper validation and logging.
 """
 
+from typing import Any
+
 import joblib
 import os
 import logging
@@ -18,7 +20,7 @@ class ModelRegistry:
     Handles loading, caching, and error management.
     """
 
-    _models = {}
+    _models: dict[str, Any] = {}
     _preprocessing_config = None
 
     MODEL_PATHS = {

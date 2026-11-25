@@ -45,13 +45,27 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pytest pytest-django
+          pip install pytest pytest-django pytest-cov mypy==2.4.1 django-stubs==6.0.9 djangorestframework-stubs==3.18.0
       - name: Django system check
         run: python manage.py check
       - name: Train replacement models (synthetic data, seeded)
         run: python tools/train_synthetic_models.py --seed 42 --rows 5000 --out models
-      - name: Run tests
-        run: python -m pytest -q -rs
+      - name: Static type check (mypy)
+        run: mypy fitness_api gym_config
+      - name: Run tests with coverage
+        run: |
+          python -m pytest -q -rs --cov=fitness_api --cov=gym_config --cov-report=term --cov-report=xml
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import xml.etree.ElementTree as ET
+          r = ET.parse("coverage.xml").getroot()
+          print(f"### Coverage (py${{ matrix.python-version }}): {float(r.get('line-rate'))*100:.1f}% lines")
+          PY
+      - name: Upload coverage report
+        if: matrix.python-version == '3.12'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-xml
+          path: coverage.xml
 
   security:
     runs-on: ubuntu-latest

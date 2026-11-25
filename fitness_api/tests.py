@@ -63,7 +63,11 @@ class FitnessAppTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         data = response.json()
-        self.assertEqual(data["fitness_level"], "متوسط")
+        # The label comes from the trained model's preprocessing config, so the
+        # test compares against that config rather than a hard-coded string.
+        from fitness_api.model_manager import ModelRegistry
+
+        self.assertEqual(data["fitness_level"], ModelRegistry.get_fitness_labels()[2])
         self.assertIn("daily_calories", data)
         self.assertIn("bmr", data)
         self.assertIn("max_bpm", data)
