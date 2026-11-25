@@ -25,6 +25,10 @@ python manage.py migrate && python manage.py runserver   # http://localhost:8000
 
 Chat and workout-plan features need at least one `GEMINI_KEY_1` or `OPENROUTER_KEY_1` in `.env`. Full steps are under [Installation](#installation).
 
+## Live demo
+
+Not deployed yet. A free Render deployment is prepared (see [docs/DEPLOY_RENDER.md](docs/DEPLOY_RENDER.md)); the link will be added here once it is live and verified. The demo uses the synthetic demonstration models, and its data resets when the free instance restarts.
+
 ## Features
 
 - **User Authentication**: Secure signup/login with profile management
