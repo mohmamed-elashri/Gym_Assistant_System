@@ -12,8 +12,14 @@ extend-ignore = ['E203']
 profile = 'black'
 
 [tool.mypy]
-python_version = 3.12
+python_version = "3.12"
 ignore_missing_imports = true
+plugins = ["mypy_django_plugin.main"]
+exclude = ["migrations/", "test_.*\\.py$", "tests\\.py$"]
+
+[tool.django-stubs]
+django_settings_module = "gym_config.settings_ci"
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "gym_config.settings_ci"
+python_files = ["test_*.py", "tests.py"]
