@@ -29,6 +29,9 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+    env:
+      DJANGO_SECRET_KEY: ci-only-not-a-secret-0123456789abcdefghijklmnopqrstuvwxyz
+      DJANGO_HTTPS: "false"
     strategy:
       fail-fast: false
       matrix:
